@@ -1,0 +1,141 @@
+---
+title: "case 4"
+author: "20"
+format: pdf
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: true
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+```{r}
+# output | false
+rm(list=ls()) 
+library(tidyverse)
+library(rjstat)
+library(gdata)
+library(httr)
+```
+
+Oppgave 1
+
+```{r}
+data(mtcars)
+mtcars %>%
+  ggplot(aes(mpg)) +
+  geom_histogram(binwidth=1) +
+  theme_minimal()
+```
+
+Oppgave 2
+
+```{r}
+url <- "https://data.ssb.no/api/v0/no/table/07967/"
+
+query <- '{
+  "query": [
+    {
+      "code": "NACE2007",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "A-N",
+          "C",
+          "G-N",
+          "A-B_D-F"
+        ]
+      }
+    },
+    {
+      "code": "SyssGrp",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "10-19",
+          "20-49",
+          "10-49",
+          "50-99",
+          "100-199",
+          "200-499",
+          "500+"
+        ]
+      }
+    },
+    {
+      "code": "Tid",
+      "selection": {
+        "filter": "item",
+        "values": [
+          "2007",
+          "2008",
+          "2009",
+          "2010",
+          "2011",
+          "2012",
+          "2013",
+          "2014",
+          "2015",
+          "2016",
+          "2017",
+          "2018",
+          "2019",
+          "2020"
+        ]
+      }
+    }
+  ],
+  "response": {
+    "format": "json-stat2"
+  }
+}'
+
+
+hent_indeks.tmp <- url %>%
+  POST(body = query, encode = "json")
+
+DF <- hent_indeks.tmp  %>%
+  content("text") %>%
+  fromJSONstat() %>%
+  as_tibble()
+```
+
+Oppgave 3
+
+```{r}
+DF %>%
+filter(statistikkvariabel=="FoU-kostnader i alt")
+data(DF)
+DF %>%
+  ggplot(aes(value) +
+  geom_histogram(binwidth=2) +
+  theme_minimal() +
+  facet_grid(statistikkvariabel ~ SN2007)
+```
+
+Oppgave 4
+
+```{r}
+data(DF)
+DF %>%
+  ggplot(aes(verdi, fill=næring) +
+  geom_histogram(binwidth=2) +
+  theme_minimal() +
+```
